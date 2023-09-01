@@ -11,7 +11,7 @@ import "./style.css";
  */
 
 const gltfLoader = new GLTFLoader();
-const cubeTextureLoader = new THREE.CubeTextureLoader();
+// const cubeTextureLoader = new THREE.CubeTextureLoader();
 const rgbeLoader = new RGBELoader();
 
 const updateAllMaterials = () => {
@@ -159,7 +159,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const clock = new THREE.Clock();
 const tick = () => {
   // Time
-  const elapsedTime = clock.getElapsedTime();
+  // const elapsedTime = clock.getElapsedTime();
 
   // Update controls
   controls.update();
