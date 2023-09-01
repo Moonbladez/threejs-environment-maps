@@ -2,7 +2,6 @@ import GUI from "lil-gui";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 
 import "./style.css";
 
@@ -12,7 +11,7 @@ import "./style.css";
 
 const gltfLoader = new GLTFLoader();
 // const cubeTextureLoader = new THREE.CubeTextureLoader();
-const rgbeLoader = new RGBELoader();
+// const rgbeLoader = new RGBELoader();
 const textureLoader = new THREE.TextureLoader();
 
 const updateAllMaterials = () => {
