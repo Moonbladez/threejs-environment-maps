@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
-import { GroundProjectedSkybox } from "three/addons/objects/GroundProjectedSkybox.js";
 
 import "./style.css";
 
@@ -14,6 +13,7 @@ import "./style.css";
 const gltfLoader = new GLTFLoader();
 // const cubeTextureLoader = new THREE.CubeTextureLoader();
 const rgbeLoader = new RGBELoader();
+const textureLoader = new THREE.TextureLoader();
 
 const updateAllMaterials = () => {
   scene.traverse((child) => {
@@ -66,19 +66,19 @@ const scene = new THREE.Scene();
 /**
  * Environment map
  */
-rgbeLoader.load("/environmentMaps/2/2k.hdr", (texture) => {
-  texture.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = texture;
+// rgbeLoader.load("/environmentMaps/2/2k.hdr", (texture) => {
+//   texture.mapping = THREE.EquirectangularReflectionMapping;
+//   scene.environment = texture;
 
-  const skybox = new GroundProjectedSkybox(texture);
-  skybox.height = 7;
-  skybox.scale.setScalar(50);
-  skybox.radius = 190;
-  scene.add(skybox);
+//   const skybox = new GroundProjectedSkybox(texture);
+//   skybox.height = 7;
+//   skybox.scale.setScalar(50);
+//   skybox.radius = 190;
+//   scene.add(skybox);
 
-  gui.add(skybox, "radius").min(1).max(200).step(0.1).name("Radius");
-  gui.add(skybox, "height").min(1).max(200).step(0.1).name("Height");
-});
+//   backgroundFolder.add(skybox, "radius").min(1).max(200).step(0.1).name("Radius");
+//   backgroundFolder.add(skybox, "height").min(1).max(200).step(0.1).name("Height");
+// });
 // const environmentMap = cubeTextureLoader.load([
 //   "/environmentMaps/0/px.png",
 //   "/environmentMaps/0/nx.png",
@@ -89,6 +89,36 @@ rgbeLoader.load("/environmentMaps/2/2k.hdr", (texture) => {
 // ]);
 // scene.environment = environmentMap;
 // scene.background = environmentMap;
+
+/**
+ * REAL TIME ENVIRONMENT MAP
+ */
+
+const environmentMap = textureLoader.load(
+  "/environmentMaps/blockadesLabsSkybox/interior_views_cozy_wood_cabin_with_cauldron_and_p.jpg"
+);
+environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap.colorSpace = THREE.SRGBColorSpace;
+
+scene.background = environmentMap;
+
+const doughnut = new THREE.Mesh(
+  new THREE.TorusGeometry(8, 0.5),
+  new THREE.MeshBasicMaterial({
+    color: new THREE.Color(10, 4, 2),
+  })
+);
+doughnut.position.set(0, 4, 0);
+
+scene.add(doughnut);
+
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+  type: THREE.HalfFloatType,
+});
+
+scene.environment = cubeRenderTarget.texture;
+
+const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
 
 /**
  * Torus Knot
@@ -103,7 +133,7 @@ const torusKnot = new THREE.Mesh(
 );
 torusKnot.position.set(-4, 4, 0);
 
-// scene.add(torusKnot);
+scene.add(torusKnot);
 
 /**
  * Models
@@ -150,7 +180,7 @@ scene.add(camera);
 
 // Controls
 const controls = new OrbitControls(camera, canvas);
-controls.target.y = 3.5;
+controls.target.y = 4;
 controls.enableDamping = true;
 
 /**
@@ -165,10 +195,14 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /**
  * Animate
  */
-// const clock = new THREE.Clock();
+const clock = new THREE.Clock();
 const tick = () => {
   // Time
-  // const elapsedTime = clock.getElapsedTime();
+  const elapsedTime = clock.getElapsedTime();
+
+  doughnut.rotation.x = Math.sin(elapsedTime) * 2;
+  doughnut.rotation.y = Math.cos(elapsedTime) * 3;
+  cubeCamera.update(renderer, scene);
 
   // Update controls
   controls.update();
