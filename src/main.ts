@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { GroundProjectedSkybox } from "three/addons/objects/GroundProjectedSkybox.js";
 
 import "./style.css";
 
@@ -31,7 +32,7 @@ const updateAllMaterials = () => {
 // Debug
 const gui = new GUI();
 const global = {
-  envMapIntensity: 5,
+  envMapIntensity: 1,
   blur: 0.1,
   backgroundIntensity: 1,
 };
@@ -65,10 +66,18 @@ const scene = new THREE.Scene();
 /**
  * Environment map
  */
-rgbeLoader.load("/environmentMaps/0/2k.hdr", (texture) => {
+rgbeLoader.load("/environmentMaps/2/2k.hdr", (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
-  scene.background = texture;
   scene.environment = texture;
+
+  const skybox = new GroundProjectedSkybox(texture);
+  skybox.height = 7;
+  skybox.scale.setScalar(50);
+  skybox.radius = 190;
+  scene.add(skybox);
+
+  gui.add(skybox, "radius").min(1).max(200).step(0.1).name("Radius");
+  gui.add(skybox, "height").min(1).max(200).step(0.1).name("Height");
 });
 // const environmentMap = cubeTextureLoader.load([
 //   "/environmentMaps/0/px.png",
