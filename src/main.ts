@@ -30,22 +30,36 @@ const updateAllMaterials = () => {
 const gui = new GUI();
 const global = {
   envMapIntensity: 5,
+  blur: 0.1,
+  backgroundIntensity: 1,
 };
-const globalFolder = gui.addFolder("Global");
-globalFolder
-  .add(global, "envMapIntensity")
+const backgroundFolder = gui.addFolder("Background");
+const modelFolder = gui.addFolder("Model");
+modelFolder.add(global, "envMapIntensity").min(0).max(10).step(0.001).name("Intensity").onChange(updateAllMaterials);
+backgroundFolder
+  .add(global, "blur")
   .min(0)
-  .max(10)
+  .max(1)
   .step(0.001)
-  .name("Map Intensity")
-  .onChange(updateAllMaterials);
+  .name("Blur")
+  .onChange(() => {
+    scene.backgroundBlurriness = global.blur;
+  });
+backgroundFolder
+  .add(global, "backgroundIntensity")
+  .min(0.5)
+  .max(5)
+  .step(0.5)
+  .name("Intensity")
+  .onChange(() => {
+    scene.backgroundIntensity = global.backgroundIntensity;
+  });
 
 // Canvas
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 
 // Scene
 const scene = new THREE.Scene();
-
 /**
  * Environment map
  */
@@ -83,7 +97,7 @@ gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
   gltf.scene.position.set(0, 0, 0);
   scene.add(gltf.scene);
 
-  gui.addFolder("FlightHelmet").add(gltf.scene.rotation, "y").min(-Math.PI).max(Math.PI).step(0.001).name("rotation");
+  modelFolder.add(gltf.scene.rotation, "y").min(-Math.PI).max(Math.PI).step(0.001).name("rotation");
 
   updateAllMaterials();
 });
@@ -115,7 +129,7 @@ window.addEventListener("resize", () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.set(4, 5, 30);
+camera.position.set(4, 5, 10);
 scene.add(camera);
 
 // Controls
